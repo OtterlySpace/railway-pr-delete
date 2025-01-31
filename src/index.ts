@@ -1,6 +1,7 @@
-import core from "@actions/core"
-import { gql, GraphQLClient } from "graphql-request"
-import { Environment, GraphQLEdges } from "~/railway.interface"
+import * as core from "@actions/core"
+import { GraphQLClient, gql } from "graphql-request"
+
+import { type Environment, type GraphQLEdges } from "~/railway.interface"
 
 // Railway Required Inputs
 const RAILWAY_API_TOKEN = core.getInput("RAILWAY_API_TOKEN")
@@ -25,7 +26,7 @@ async function railwayGraphQLRequest<T>(query: string, variables: Record<string,
 }
 
 async function getEnvironments() {
-	let query = `query environments($projectId: String!) {
+	const query = `query environments($projectId: String!) {
 			environments(projectId: $projectId) {
 				edges {
 					node {
@@ -61,13 +62,13 @@ async function getEnvironments() {
 
 async function deleteEnvironment(environmentId: string) {
 	try {
-		let query = gql`
+		const query = gql`
 			mutation environmentDelete($id: String!) {
 				environmentDelete(id: $id)
 			}
 		`
 
-		let variables = {
+		const variables = {
 			id: environmentId
 		}
 
@@ -81,7 +82,7 @@ async function deleteEnvironment(environmentId: string) {
 // #endregion
 
 async function checkIfEnvironmentExists() {
-	let response = await getEnvironments()
+	const response = await getEnvironments()
 	const filteredEdges = response.environments.edges.find((edge) => edge.node.name === DEST_ENV_NAME)
 	return filteredEdges ? { environmentId: filteredEdges.node.id } : null
 }
@@ -107,4 +108,4 @@ async function run() {
 	}
 }
 
-run()
+void run()
